@@ -14,10 +14,15 @@ var should = require('should');
 var pedding = require('pedding');
 var client = require('../client');
 
+// const id = 3337061 // 'kristianmandrup/docker-gen-tester'
+// /api/v3/projects/
+const id = 'docker-gen-tester'
+
 describe('client.repository.commitActions()', function () {
   it('should commit a list of actions', function (done) {
     client.repository.commitActions({
-      id: 55045,
+      // id: 55045,
+      id,
       branch: 'develop',
       actions: [{
         "action": "create",
@@ -40,7 +45,7 @@ describe('client.repository.commitActions()', function () {
     it('async/await: should commit a list of actions', async function () {
       try {
         let res = await client.promise.repository.commitActions({
-          id: 55045,
+          id,
           branch: 'develop',
           actions: [{
             "action": "create",

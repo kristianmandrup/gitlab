@@ -58,7 +58,11 @@ module.exports = {
 
 Config is loaded from `test/client.js`
 
-Our test repo url: `https://gitlab.com/kristianmandrup/docker-gen-tester`
+### Project ID
+
+See [namespaced-path-encoding](https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding)
+
+Our test repo url: `/api/v3/projects/docker-gen-tester`
 
 We can also try with promise client:
 
