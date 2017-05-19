@@ -34,6 +34,18 @@ Gitlab API Node.js client
 $ npm install node-gitlab --save
 ```
 
+## commitActions test
+
+Try:
+
+`mocha --harmony -R spec -r co-mocha -t 40000 test/repository/*.test.js`
+
+Getting 401 error:
+
+```bash
+[Gitlab401Error: 401 Unauthorized]
+```
+
 ## Usage
 
 ```js

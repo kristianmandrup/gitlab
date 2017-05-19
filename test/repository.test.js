@@ -345,31 +345,6 @@ describe.skip('repository.test.js', function () {
     });
   });
 
-  describe('client.repository.commitActions()', function () {
-    it('should commit a list of actions', function (done) {
-      client.repository.commitActions({
-        id: 55045,
-        branch: 'develop',
-        actions: [{
-          "action": "create",
-          "file_path": "foo",
-          "content": "some content"
-        }],
-        author_email: 'test@gmail.com',
-        author_name: 'tester',
-        commit_message: 'goodies',
-      }, function (err, raw) {
-        should.not.exists(err);
-        should.exists(raw);
-        should.ok(Buffer.isBuffer(raw));
-        raw.should.be.a.Buffer;
-        raw.length.should.above(0);
-        raw.toString().should.containEql('gitlab-client-unittest\n=======\n\n');
-        done();
-      });
-    });
-  });
-
   describe('client.repository.archive()', function () {
     it('should return archive file', function (done) {
       client.repository.archive({
