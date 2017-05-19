@@ -49,6 +49,16 @@ PAYLOAD=$(cat << 'JSON'
       "file_path": "foo/bar",
       "content": "some content"
     },
+  ]
+}
+JSON
+)
+curl --request POST --header "PRIVATE-TOKEN: FTwjsMxf9yTg23sLd9bp" --header "Content-Type: application/json" --data "$PAYLOAD" https://gitlab.com/api/v4/projects/3337351/repository/commits
+```
+
+With update, move and delete...
+
+```
     {
       "action": "delete",
       "file_path": "foo/bar2",
@@ -64,11 +74,6 @@ PAYLOAD=$(cat << 'JSON'
       "file_path": "foo/bar5",
       "content": "new content"
     }
-  ]
-}
-JSON
-)
-curl --request POST --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" --header "Content-Type: application/json" --data "$PAYLOAD" https://gitlab.example.com/api/v4/projects/1/repository/commits
 ```
 
 Try:
