@@ -36,5 +36,33 @@ describe('client.repository.commitActions()', function () {
       raw.toString().should.containEql('gitlab-client-unittest\n=======\n\n');
       done();
     });
+
+    it('async/await: should commit a list of actions', async function () {
+      try {
+        let res = await client.promise.repository.commitActions({
+          id: 55045,
+          branch: 'develop',
+          actions: [{
+            "action": "create",
+            "file_path": "foo",
+            "content": "some content"
+          }],
+          author_email: 'test@gmail.com',
+          author_name: 'tester',
+          commit_message: 'goodies',
+        })
+
+        should.exists(raw);
+        should.ok(Buffer.isBuffer(raw));
+        raw.should.be.a.Buffer;
+        raw.length.should.above(0);
+        raw.toString().should.containEql('gitlab-client-unittest\n=======\n\n');
+
+      } catch (err) {
+        should.not.exists(err);
+      }
+
+    });
   });
+
 })

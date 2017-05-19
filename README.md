@@ -46,6 +46,15 @@ Getting 401 error:
 [Gitlab401Error: 401 Unauthorized]
 ```
 
+We can also try with promise client:
+
+```js
+var client = gitlab.createPromise({
+  api: 'https://gitlab.com/api/v3',
+  privateToken: 'your private token'
+});
+```
+
 ## Usage
 
 ```js
