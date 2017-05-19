@@ -78,7 +78,7 @@ With update, move and delete...
 
 Try:
 
-`mocha --harmony -R spec -r co-mocha -t 40000 test/repository/*.test.js`
+`mocha --harmony -R spec -r co-mocha -t 90000 test/repository/*.test.js`
 
 Getting 500 error:
 
@@ -99,7 +99,7 @@ Some people complain about utf8 encoding problem.
 ```js
 do urllib.request { url: 'https://gitlab.com/api/v4/projects/3337912/repository/commits',
   params:
-   { timeout: 40000,
+   { timeout: 60000,
      method: 'post',
      dataType: 'json',
      data:

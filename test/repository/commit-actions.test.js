@@ -41,14 +41,14 @@ describe('client.repository.commitActions()', function () {
       // branch_name: 'develop',
       branch: 'develop',
       actions: [{
-        "action": "create",
-        "file_path": "foo",
-        "content": "some content"
+        action: 'create',
+        file_path: 'foo',
+        content: 'some content'
+        // encoding: 'text'
       }],
       // author_email: 'test@gmail.com',
       // author_name: 'tester',
-      commit_message: 'goodies',
-      encoding: 'text'
+      commit_message: 'goodies'
     }, function (err, res) {
       console.log('RETURNED', {
         err,
