@@ -30,12 +30,13 @@ describe('client.repository.commitActions()', function () {
 
   // Seems to work only if I don't clean up (remove) project after.
   // Looks like a race condition!?
-  after(() => {
+  after((done) => {
     // Try cleanup 5secs after tests done
     setTimeout(() => {
       console.log(`Cleaning up!!!`)
       client.removeProject()
       console.log(`DONE Clean up!!!`)
+      done()
     }, 2000)
   });
 
@@ -60,8 +61,8 @@ describe('client.repository.commitActions()', function () {
         err,
         res
       })
-      // should.not.exists(err);
-      // should.exists(res);
+      should.not.exists(err);
+      should.exists(res);
       done();
     });
 
