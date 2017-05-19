@@ -80,13 +80,30 @@ Try:
 
 `mocha --harmony -R spec -r co-mocha -t 40000 test/repository/*.test.js`
 
-Getting 401 error:
+Getting 500 error:
 
 ```bash
-[Gitlab401Error: 401 Unauthorized]
+{ err:
+   { Gitlab500Error: 500 Internal Server Error
+       at Gitlab.RESTFulClient.handleResult (/Users/kristianmandrup/repos/tecla5/gitlab/node_modules/restful-client/lib/client.js:75:11)
+       at /Users/kristianmandrup/repos/tecla5/gitlab/node_modules/restful-client/lib/client.js:133:10
+       at done (/Users/kristianmandrup/repos/tecla5/gitlab/node_modules/urllib/lib/urllib.js:262:5)
+       at /Users/kristianmandrup/repos/tecla5/gitlab/node_modules/urllib/lib/urllib.js:435:9
+       at IncomingMessage.<anonymous> (/Users/kristianmandrup/repos/tecla5/gitlab/node_modules/urllib/lib/urllib.js:412:7)
 ```
 
-We most likley need to use our own repo private token to run tests!
+To debug error, try going to `node_modules/restful-client/lib/client.js` and insert `console.log`:
+
+```js
+  } else if (statusCode > 300) {
+    console.log({
+      err
+    })
+```
+
+Perhaps also: `node_modules/urllib/lib/urllib.js` line `435` - might be due to malformed URL?
+
+We most likely need to use our own repo private token to run tests!
 
 ```js
 module.exports = {
