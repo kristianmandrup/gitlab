@@ -36,7 +36,10 @@ describe('issue.test.js', function () {
 
   describe('client.issues.get()', function () {
     it('should return a issue', function (done) {
-      client.issues.get({id: client.id, issue_id: issueId}, function (err, row) {
+      client.issues.get({
+        id: client.id,
+        issue_id: issueId
+      }, function (err, row) {
         should.not.exists(err);
         row.id.should.equal(issueId);
         row.should.have.keys('id', 'iid', 'project_id', 'title', 'description', 'labels',
@@ -47,19 +50,25 @@ describe('issue.test.js', function () {
     });
 
     it('should return issue with promise way', function (done) {
-      client.promise.issues.get({id: client.id, issue_id: issueId})
-      .then(function (row) {
-        row.id.should.equal(issueId);
-        row.should.have.keys('id', 'iid', 'project_id', 'title', 'description', 'labels',
-          'milestone', 'assignee', 'author', 'state', 'updated_at', 'created_at',
-          'subscribed', 'user_notes_count', 'upvotes', 'downvotes', 'due_date', 'confidential', 'web_url');
-        done();
-      })
-      .catch(done);
+      client.promise.issues.get({
+          id: client.id,
+          issue_id: issueId
+        })
+        .then(function (row) {
+          row.id.should.equal(issueId);
+          row.should.have.keys('id', 'iid', 'project_id', 'title', 'description', 'labels',
+            'milestone', 'assignee', 'author', 'state', 'updated_at', 'created_at',
+            'subscribed', 'user_notes_count', 'upvotes', 'downvotes', 'due_date', 'confidential', 'web_url');
+          done();
+        })
+        .catch(done);
     });
 
     it('should return issue with thunk way', function* () {
-      var row = yield client.thunk.issues.get({id: client.id, issue_id: issueId});
+      var row = yield client.thunk.issues.get({
+        id: client.id,
+        issue_id: issueId
+      });
       row.id.should.equal(issueId);
       row.should.have.keys('id', 'iid', 'project_id', 'title', 'description', 'labels',
         'milestone', 'assignee', 'author', 'state', 'updated_at', 'created_at',
@@ -70,7 +79,9 @@ describe('issue.test.js', function () {
   describe('client.issues.list()', function () {
 
     it('should return issues', function (done) {
-      client.issues.list({id: client.id}, function (err, issues) {
+      client.issues.list({
+        id: client.id
+      }, function (err, issues) {
         should.not.exists(err);
         issues.length.should.above(0);
         var row = issues[0];
@@ -135,29 +146,37 @@ describe('issue.test.js', function () {
 
   describe('client.issues.listNotes()', function () {
     it('should return issue\'s notes', function (done) {
-      client.issues.listNotes({id: client.id, issue_id: issueId}, function (err, rows) {
+      client.issues.listNotes({
+        id: client.id,
+        issue_id: issueId
+      }, function (err, rows) {
         should.not.exists(err);
         rows.length.should.above(0);
         var row = rows[0];
         row.should.have.keys('id', 'body', 'author', 'created_at', 'attachment',
-             'updated_at', 'system', 'noteable_id', 'noteable_type', 'upvote?', 'downvote?');
+          'updated_at', 'system', 'noteable_id', 'noteable_type', 'upvote?', 'downvote?');
         done();
       });
     });
 
     it('should return issue\'s notes in thunk way', function* () {
-      var rows = yield client.thunk.issues.listNotes({id: client.id, issue_id: issueId});
+      var rows = yield client.thunk.issues.listNotes({
+        id: client.id,
+        issue_id: issueId
+      });
       rows.length.should.above(0);
       var row = rows[0];
       row.should.have.keys('id', 'body', 'author', 'created_at', 'attachment',
-             'updated_at', 'system', 'noteable_id', 'noteable_type', 'upvote?', 'downvote?');
+        'updated_at', 'system', 'noteable_id', 'noteable_type', 'upvote?', 'downvote?');
     });
   });
 
   describe('client.issues.createNote()', function () {
     it('should create to note', function (done) {
       client.issues.createNote({
-        id: client.id, issue_id: issueId, body: '# h1 哈哈\n fixed #1098, fix #1098 fixes #1098'
+        id: client.id,
+        issue_id: issueId,
+        body: '# h1 哈哈\n fixed #1098, fix #1098 fixes #1098'
       }, done);
     });
   });

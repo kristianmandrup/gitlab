@@ -12,62 +12,72 @@
 
 var should = require('should');
 var pedding = require('pedding');
-var client = require('../client');
-
-// const id = 3337061 // 'kristianmandrup/docker-gen-tester'
-// /api/v3/projects/
-const id = 'docker-gen-tester'
+var client = require('../v4/client');
 
 describe('client.repository.commitActions()', function () {
+  before(function (done) {
+    // use API v4 ??
+    // See: https://docs.gitlab.com/ce/api/v3_to_v4.html
+    // process.env.NODE_GITLAB_API = 'https://gitlab.com/api/v4'
+
+    console.log('before suite, create fresh test project to be used :)')
+    client.createProject(function (err) {
+      console.log(`test project created: ${client.id}`)
+      console.log(`Ready for action!`)
+      done();
+    });
+  });
+
+  after(client.removeProject);
+
   it('should commit a list of actions', function (done) {
     client.repository.commitActions({
-      // id: 55045,
-      id,
+      id: client.id,
+      // branch_name: 'develop',
       branch: 'develop',
       actions: [{
         "action": "create",
         "file_path": "foo",
         "content": "some content"
       }],
-      author_email: 'test@gmail.com',
-      author_name: 'tester',
+      // author_email: 'test@gmail.com',
+      // author_name: 'tester',
       commit_message: 'goodies',
-    }, function (err, raw) {
+    }, function (err, res) {
+      console.log({
+        err,
+        res
+      })
       should.not.exists(err);
-      should.exists(raw);
-      should.ok(Buffer.isBuffer(raw));
-      raw.should.be.a.Buffer;
-      raw.length.should.above(0);
-      raw.toString().should.containEql('gitlab-client-unittest\n=======\n\n');
+      should.exists(res);
       done();
     });
 
-    it('async/await: should commit a list of actions', async function () {
-      try {
-        let res = await client.promise.repository.commitActions({
-          id,
-          branch: 'develop',
-          actions: [{
-            "action": "create",
-            "file_path": "foo",
-            "content": "some content"
-          }],
-          author_email: 'test@gmail.com',
-          author_name: 'tester',
-          commit_message: 'goodies',
-        })
+    // it.skip('async/await: should commit a list of actions', async function () {
+    //   try {
+    //     let res = await client.promise.repository.commitActions({
+    //       id: client.id,
+    //       branch_name: 'develop',
+    //       actions: [{
+    //         "action": "create",
+    //         "file_path": "foo",
+    //         "content": "some content"
+    //       }],
+    //       author_email: 'test@gmail.com',
+    //       author_name: 'tester',
+    //       commit_message: 'goodies',
+    //     })
 
-        should.exists(raw);
-        should.ok(Buffer.isBuffer(raw));
-        raw.should.be.a.Buffer;
-        raw.length.should.above(0);
-        raw.toString().should.containEql('gitlab-client-unittest\n=======\n\n');
+    //     console.log({
+    //       res
+    //     })
+    //     should.exists(res);
+    //     should.ok(res);
+    //   } catch (err) {
+    //     should.not.exists(err);
+    //   }
 
-      } catch (err) {
-        should.not.exists(err);
-      }
-
-    });
+    // });
   });
 
 })

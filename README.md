@@ -36,6 +36,41 @@ $ npm install node-gitlab --save
 
 ## commitActions test
 
+[create-a-commit-with-multiple-files-and-actions](https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/commits.md#create-a-commit-with-multiple-files-and-actions)
+
+```
+PAYLOAD=$(cat << 'JSON'
+{
+  "branch": "master",
+  "commit_message": "some commit message",
+  "actions": [
+    {
+      "action": "create",
+      "file_path": "foo/bar",
+      "content": "some content"
+    },
+    {
+      "action": "delete",
+      "file_path": "foo/bar2",
+    },
+    {
+      "action": "move",
+      "file_path": "foo/bar3",
+      "previous_path": "foo/bar4",
+      "content": "some content"
+    },
+    {
+      "action": "update",
+      "file_path": "foo/bar5",
+      "content": "new content"
+    }
+  ]
+}
+JSON
+)
+curl --request POST --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" --header "Content-Type: application/json" --data "$PAYLOAD" https://gitlab.example.com/api/v4/projects/1/repository/commits
+```
+
 Try:
 
 `mocha --harmony -R spec -r co-mocha -t 40000 test/repository/*.test.js`
