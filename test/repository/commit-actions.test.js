@@ -77,7 +77,17 @@ describe('client.repository.commitActions()', function () {
     console.log('promise client', pretty(promise))
     console.log('repository API', pretty(promise.repository))
 
-    promise.repository.commitActions({
+    function commitActionsPromised(data) {
+      return new Promise((resolve, reject) => {
+        client.repository.commitActions(data, (err, result) => {
+          if (err) reject(err)
+          resolve(result)
+        })
+      })
+    }
+    // same as:
+    // promise.repository.commitActions
+    commitActionsPromised({
         id: client.id,
         branch: 'master',
         actions: [{
