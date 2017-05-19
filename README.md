@@ -58,6 +58,10 @@ module.exports = {
 
 Config is loaded from `test/client.js`
 
+### Alternatives
+
+Perhaps try/extend [gitlab-api-client](https://github.com/kiddouk/gitlab-api-client) with a more fluent API?
+
 ### Project ID
 
 See [namespaced-path-encoding](https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding)
