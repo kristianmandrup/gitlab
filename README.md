@@ -53,7 +53,7 @@ PAYLOAD=$(cat << 'JSON'
 }
 JSON
 )
-curl --request POST --header "PRIVATE-TOKEN: FTwjsMxf9yTg23sLd9bp" --header "Content-Type: application/json" --data "$PAYLOAD" https://gitlab.com/api/v4/projects/3337351/repository/commits
+curl --request POST --header "PRIVATE-TOKEN: FTwjsMxf9yTg23sLd9bp" --header "Content-Type: application/json" --data "$PAYLOAD" https://gitlab.com//api/v4/projects/3339054/repository/commits
 ```
 
 With update, move and delete...
@@ -93,6 +93,17 @@ Getting 500 error:
 ```
 
 [Error 500 after pushing code](https://gitlab.com/gitlab-com/support-forum/issues/4)
+
+Now, if I comment out the after/cleanup step of the test it works!!!
+Adding 5 secs timeout on `after` also avoids race condition! Maybe could be 1 sec?
+
+I might get this error, but this is caused by pushing the same file again!
+Otherwise I get success and a result back!
+
+```js
+RETURNED { err:
+   { Gitlab400Error: A file with this name already exists
+```
 
 Some people complain about utf8 encoding problem.
 

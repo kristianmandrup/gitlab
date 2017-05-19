@@ -28,21 +28,27 @@ describe('client.repository.commitActions()', function () {
     });
   });
 
+  // Seems to work only if I don't clean up (remove) project after.
+  // Looks like a race condition!?
   after(() => {
-    console.log(`Cleaning up!!!`)
-    client.removeProject()
-    console.log(`DONE Clean up!!!`)
+    // Try cleanup 5secs after tests done
+    setTimeout(() => {
+      console.log(`Cleaning up!!!`)
+      client.removeProject()
+      console.log(`DONE Clean up!!!`)
+    }, 2000)
   });
 
   it('should commit a list of actions', function (done) {
     console.log(`repository.commitActions`, client.id)
+    let random = Math.floor((Math.random() * 1000) + 1)
     client.repository.commitActions({
       id: client.id,
       // branch_name: 'develop',
       branch: 'develop',
       actions: [{
         action: 'create',
-        file_path: 'foo',
+        file_path: `foolish-${random}`,
         content: 'some content'
         // encoding: 'text'
       }],
