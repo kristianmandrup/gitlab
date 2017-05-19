@@ -46,6 +46,20 @@ Getting 401 error:
 [Gitlab401Error: 401 Unauthorized]
 ```
 
+We most likley need to use our own repo private token to run tests!
+
+```js
+module.exports = {
+  api: process.env.NODE_GITLAB_API || 'https://gitlab.com/api/v3',
+  privateToken: process.env.NODE_GITLAB_TOKEN || 'enEWf516mA168tP6BiVe',
+  requestTimeout: 30000,
+};
+```
+
+Config is loaded from `test/client.js`
+
+Our test repo url: `https://gitlab.com/kristianmandrup/docker-gen-tester`
+
 We can also try with promise client:
 
 ```js
