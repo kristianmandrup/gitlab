@@ -92,6 +92,26 @@ Getting 500 error:
        at IncomingMessage.<anonymous> (/Users/kristianmandrup/repos/tecla5/gitlab/node_modules/urllib/lib/urllib.js:412:7)
 ```
 
+[Error 500 after pushing code](https://gitlab.com/gitlab-com/support-forum/issues/4)
+
+Some people complain about utf8 encoding problem.
+
+```js
+do urllib.request { url: 'https://gitlab.com/api/v4/projects/3337912/repository/commits',
+  params:
+   { timeout: 40000,
+     method: 'post',
+     dataType: 'json',
+     data:
+      { branch: 'develop',
+        actions: [Object],
+        commit_message: 'goodies',
+        encoding: 'text',
+        private_token: 'FTwjsMxf9yTg23sLd9bp' },
+     headers: {} } }
+```
+
+See `experiments/client.js` and try it in `node_modules/restful-client/lib/client.js`
 To debug error, try going to `node_modules/restful-client/lib/client.js` and insert `console.log`:
 
 ```js
@@ -101,7 +121,43 @@ To debug error, try going to `node_modules/restful-client/lib/client.js` and ins
     })
 ```
 
-Perhaps also: `node_modules/urllib/lib/urllib.js` line `435` - might be due to malformed URL?
+Perhaps also: `node_modules/urllib/lib/urllib.js` line `~412` - might be due to malformed URL?
+
+```js
+  decodeContent(res, body, function (err, data, encoding) {
+    console.log('decodeContent', body)
+```
+
+Body looks to be a `Buffer`, so that is a good sign :)
+
+`decodeContent <Buffer 5b 7b 22 69 64 22 3a 33`
+
+Looking good in `restful-client/client.js`
+
+```js
+  console.log('try handleResult', {
+    err,
+    resData,
+    res
+  })
+  self.handleResult(err, resData, res, function (err, result) {
+```
+
+```js
+try handleResult { err: null,
+  resData: { message: '202 Accepted' },
+  res:
+   IncomingMessage {
+```
+
+and even in `handleResult`:
+
+```js
+handleResult { err: null,
+  result: { message: '202 Accepted' },
+  res:
+   IncomingMessage {
+```
 
 We most likely need to use our own repo private token to run tests!
 
