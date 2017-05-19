@@ -14,6 +14,10 @@ var should = require('should');
 var pedding = require('pedding');
 var client = require('../v4/client');
 
+function pretty(obj) {
+  return JSON.stringify(obj, null, 2)
+}
+
 describe('client.repository.commitActions()', function () {
   before(function (done) {
     // use API v4 ??
@@ -40,57 +44,87 @@ describe('client.repository.commitActions()', function () {
     }, 2000)
   });
 
-  it('should commit a list of actions', function (done) {
-    console.log(`repository.commitActions`, client.id)
+  // it('should commit a list of actions', function (done) {
+  //   console.log(`repository.commitActions`, client.id)
+  //   let random = Math.floor((Math.random() * 1000) + 1)
+  //   client.repository.commitActions({
+  //     id: client.id,
+  //     // branch_name: 'develop',
+  //     branch: 'develop',
+  //     actions: [{
+  //       action: 'create',
+  //       file_path: `foolish-${random}`,
+  //       content: 'some content'
+  //       // encoding: 'text'
+  //     }],
+  //     // author_email: 'test@gmail.com',
+  //     // author_name: 'tester',
+  //     commit_message: 'goodies'
+  //   }, function (err, res) {
+  //     console.log('RETURNED', {
+  //       err,
+  //       res
+  //     })
+  //     should.not.exists(err);
+  //     should.exists(res);
+  //     done();
+  //   })
+
+
+  it('should commit actions in promise way', function (done) {
     let random = Math.floor((Math.random() * 1000) + 1)
-    client.repository.commitActions({
-      id: client.id,
-      // branch_name: 'develop',
-      branch: 'develop',
-      actions: [{
-        action: 'create',
-        file_path: `foolish-${random}`,
-        content: 'some content'
-        // encoding: 'text'
-      }],
-      // author_email: 'test@gmail.com',
-      // author_name: 'tester',
-      commit_message: 'goodies'
-    }, function (err, res) {
-      console.log('RETURNED', {
-        err,
-        res
+    let promise = client.promise
+    console.log('promise client', pretty(promise))
+    console.log('repository API', pretty(promise.repository))
+
+    promise.repository.commitActions({
+        id: client.id,
+        branch: 'master',
+        actions: [{
+          "action": "create",
+          "file_path": `bar-${random}`,
+          "content": "some content"
+        }],
+        author_email: 'test@gmail.com',
+        author_name: 'tester',
+        commit_message: 'more goodies',
       })
-      should.not.exists(err);
-      should.exists(res);
-      done();
-    });
+      .then(function (err, res) {
+        console.log({
+          res
+        })
+        should.exists(res);
+        should.ok(res);
 
-    // it.skip('async/await: should commit a list of actions', async function () {
-    //   try {
-    //     let res = await client.promise.repository.commitActions({
-    //       id: client.id,
-    //       branch_name: 'develop',
-    //       actions: [{
-    //         "action": "create",
-    //         "file_path": "foo",
-    //         "content": "some content"
-    //       }],
-    //       author_email: 'test@gmail.com',
-    //       author_name: 'tester',
-    //       commit_message: 'goodies',
-    //     })
-
-    //     console.log({
-    //       res
-    //     })
-    //     should.exists(res);
-    //     should.ok(res);
-    //   } catch (err) {
-    //     should.not.exists(err);
-    //   }
-
-    // });
+        done();
+      })
+      .catch(done);
   });
 
+
+  // it('async/await: should commit a list of actions', async function () {
+  //   let random = Math.floor((Math.random() * 1000) + 1)
+  //   try {
+  //     let res = await client.promise.repository.commitActions({
+  //       id: client.id,
+  //       branch: 'master',
+  //       actions: [{
+  //         "action": "create",
+  //         "file_path": `foo-${random}`,
+  //         "content": "some content"
+  //       }],
+  //       author_email: 'test@gmail.com',
+  //       author_name: 'tester',
+  //       commit_message: 'more goodies',
+  //     })
+  //     console.log({
+  //       res
+  //     })
+  //     should.exists(res);
+  //     should.ok(res);
+  //   } catch (err) {
+  //     console.error(err)
+  //     should.not.exists(err);
+  //   }
+  // })
 })

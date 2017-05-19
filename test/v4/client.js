@@ -78,4 +78,4 @@ client.removeProject = function (callback) {
 client.promise = gitlab.createPromise(config);
 client.thunk = gitlab.createThunk(config);
 
-module.exports = client;
+module.exports = client

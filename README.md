@@ -201,6 +201,18 @@ var client = gitlab.createPromise({
 });
 ```
 
+## TODO
+
+Add new method to `properties.json` to be added to promise client
+
+### Promisify commitActions
+
+I get `Gitlab400Error: You can only create or edit files when you are on a branch`
+
+WTF!? `promisify.js`
+
+`promisify(method, source[name][method].bind(source[name]));`
+
 ## Usage
 
 ```js
