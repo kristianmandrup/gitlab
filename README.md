@@ -34,185 +34,6 @@ Gitlab API Node.js client
 $ npm install node-gitlab --save
 ```
 
-## commitActions test
-
-[create-a-commit-with-multiple-files-and-actions](https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/commits.md#create-a-commit-with-multiple-files-and-actions)
-
-```
-PAYLOAD=$(cat << 'JSON'
-{
-  "branch": "master",
-  "commit_message": "some commit message",
-  "actions": [
-    {
-      "action": "create",
-      "file_path": "foo/bar",
-      "content": "some content"
-    },
-  ]
-}
-JSON
-)
-curl --request POST --header "PRIVATE-TOKEN: FTwjsMxf9yTg23sLd9bp" --header "Content-Type: application/json" --data "$PAYLOAD" https://gitlab.com//api/v4/projects/3339054/repository/commits
-```
-
-With update, move and delete...
-
-```
-    {
-      "action": "delete",
-      "file_path": "foo/bar2",
-    },
-    {
-      "action": "move",
-      "file_path": "foo/bar3",
-      "previous_path": "foo/bar4",
-      "content": "some content"
-    },
-    {
-      "action": "update",
-      "file_path": "foo/bar5",
-      "content": "new content"
-    }
-```
-
-Try:
-
-`mocha --harmony -R spec -r co-mocha -t 90000 test/repository/*.test.js`
-
-Getting 500 error:
-
-```bash
-{ err:
-   { Gitlab500Error: 500 Internal Server Error
-       at Gitlab.RESTFulClient.handleResult (/Users/kristianmandrup/repos/tecla5/gitlab/node_modules/restful-client/lib/client.js:75:11)
-       at /Users/kristianmandrup/repos/tecla5/gitlab/node_modules/restful-client/lib/client.js:133:10
-       at done (/Users/kristianmandrup/repos/tecla5/gitlab/node_modules/urllib/lib/urllib.js:262:5)
-       at /Users/kristianmandrup/repos/tecla5/gitlab/node_modules/urllib/lib/urllib.js:435:9
-       at IncomingMessage.<anonymous> (/Users/kristianmandrup/repos/tecla5/gitlab/node_modules/urllib/lib/urllib.js:412:7)
-```
-
-[Error 500 after pushing code](https://gitlab.com/gitlab-com/support-forum/issues/4)
-
-Now, if I comment out the after/cleanup step of the test it works!!!
-Adding 5 secs timeout on `after` also avoids race condition! Maybe could be 1 sec?
-
-I might get this error, but this is caused by pushing the same file again!
-Otherwise I get success and a result back!
-
-```js
-RETURNED { err:
-   { Gitlab400Error: A file with this name already exists
-```
-
-Some people complain about utf8 encoding problem.
-
-```js
-do urllib.request { url: 'https://gitlab.com/api/v4/projects/3337912/repository/commits',
-  params:
-   { timeout: 60000,
-     method: 'post',
-     dataType: 'json',
-     data:
-      { branch: 'develop',
-        actions: [Object],
-        commit_message: 'goodies',
-        encoding: 'text',
-        private_token: 'FTwjsMxf9yTg23sLd9bp' },
-     headers: {} } }
-```
-
-See `experiments/client.js` and try it in `node_modules/restful-client/lib/client.js`
-To debug error, try going to `node_modules/restful-client/lib/client.js` and insert `console.log`:
-
-```js
-  } else if (statusCode > 300) {
-    console.log({
-      err
-    })
-```
-
-Perhaps also: `node_modules/urllib/lib/urllib.js` line `~412` - might be due to malformed URL?
-
-```js
-  decodeContent(res, body, function (err, data, encoding) {
-    console.log('decodeContent', body)
-```
-
-Body looks to be a `Buffer`, so that is a good sign :)
-
-`decodeContent <Buffer 5b 7b 22 69 64 22 3a 33`
-
-Looking good in `restful-client/client.js`
-
-```js
-  console.log('try handleResult', {
-    err,
-    resData,
-    res
-  })
-  self.handleResult(err, resData, res, function (err, result) {
-```
-
-```js
-try handleResult { err: null,
-  resData: { message: '202 Accepted' },
-  res:
-   IncomingMessage {
-```
-
-and even in `handleResult`:
-
-```js
-handleResult { err: null,
-  result: { message: '202 Accepted' },
-  res:
-   IncomingMessage {
-```
-
-We most likely need to use our own repo private token to run tests!
-
-```js
-module.exports = {
-  api: process.env.NODE_GITLAB_API || 'https://gitlab.com/api/v3',
-  privateToken: process.env.NODE_GITLAB_TOKEN || 'enEWf516mA168tP6BiVe',
-  requestTimeout: 30000,
-};
-```
-
-Config is loaded from `test/client.js`
-
-### Alternatives
-
-Perhaps try/extend [gitlab-api-client](https://github.com/kiddouk/gitlab-api-client) with a more fluent API?
-
-### Project ID
-
-See [namespaced-path-encoding](https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding)
-
-Our test repo url: `/api/v3/projects/docker-gen-tester`
-
-We can also try with promise client:
-
-```js
-var client = gitlab.createPromise({
-  api: 'https://gitlab.com/api/v3',
-  privateToken: 'your private token'
-});
-```
-
-## TODO
-
-Add new method to `properties.json` to be added to promise client
-
-### Promisify commitActions
-
-I get `Gitlab400Error: You can only create or edit files when you are on a branch`
-
-WTF!? `promisify.js`
-
-`promisify(method, source[name][method].bind(source[name]));`
-
 ## Usage
 
 ```js
@@ -270,6 +91,35 @@ client.milestones.list({id: 1})
 ## Document
 
 @see [Gitlab API document](https://github.com/gitlabhq/gitlabhq/tree/master/doc/api).
+
+### Client configuration
+
+Most importantly:
+
+- API version can be set to `v3` or `v4`
+- `privateToken` can be found on your [gitlab account page](https://gitlab.com/profile/account)
+- `requestTimeout` should be set between 30-60 secs, depending on size/complexity of API calls (such as a huge commit) or server load etc.
+
+```js
+module.exports = {
+  api: process.env.NODE_GITLAB_API || 'https://gitlab.com/api/v3',
+  privateToken: process.env.NODE_GITLAB_TOKEN || 'enEWf516mA168tP6BiVe',
+  requestTimeout: 30000,
+};
+```
+
+### Alternative Gitlab clients
+
+- [gitlab-api-client](https://github.com/kiddouk/gitlab-api-client) a more fluent API
+- [nodegit](http://www.nodegit.org/) - general git API client
+
+### Project ID
+
+See [namespaced-path-encoding](https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding)
+
+## Promise support
+
+All API methods must be added to `properties.json` to be added to promise client (ie. `client.promise`)
 
 ### Project
 
@@ -707,6 +557,300 @@ Parameters:
 * `{String}` `key_id` (required) - The ID of the deploy key
 
 ---
+
+### Repository
+
+- `getBranches`
+- `protectBranch`
+- `unprotectBranch`
+- `getBranch`
+- `getTags`
+- `getCommits`
+- `getCommit`
+- `getTree`
+- `getBlob`
+- `getRawBlob`
+- `createTag`
+- `commitActions`
+- `getDiff`
+- `archive`
+- `compare`
+
+### list
+
+Generic method to list items of repository, here the file tree via `type: 'tree'`
+
+```js
+client.repository.list({
+  id: client.id,
+  type: 'tree'
+}, function (err, tree) {
+  // ...
+})
+```
+
+### getBranches
+
+Get all branches of project/repository
+
+```js
+client.repository.getBranches({
+  id: client.id
+}, function (err, branches) {
+  // ...
+})
+```
+
+### protectBranch
+
+Protect specific branch
+
+```js
+client.repository.protectBranch({
+  id: client.id,
+  branch: 'master'
+}, function (err, branch) {
+  // ...
+})
+```
+
+### unprotectBranch
+
+Remove protection of specific branch
+
+```js
+client.repository.unprotectBranch({
+  id: client.id,
+  branch: 'master'
+}, function (err, branch) {
+  // ...
+})
+```
+
+### getBranch
+
+Get specific branch of project/repository
+
+```js
+client.repository.getBranch({
+  id: client.id,
+  branch: 'master'
+}, function (err, branch) {
+  // ...
+})
+```
+
+### getTags
+
+Get all tags of project/repository
+
+```js
+client.repository.getTags({
+  id: client.id
+}, function (err, tags) {
+  // ...
+})
+```
+
+### getCommits
+
+Get all commits of project/repository
+
+```js
+client.repository.getCommits({
+  id: client.id
+}, function (err, commits) {
+  // ...
+})
+```
+
+### getCommit
+
+Get specific commit
+
+```js
+client.repository.getCommit({
+  id: 55045,
+  sha: '946579807281bd26b75b91986c78f15ad0bd40f7'
+}, function (err, raw) {
+  // ...
+})
+```
+
+### getTree
+
+Get the full file tree
+
+```js
+client.repository.getTree({
+  id: client.id
+}, function (err, tree) {
+  // ...
+})
+```
+
+Get tree for specific `path`
+
+```js
+let res = await client.promise.repository.getTree({
+  id: client.id,
+  path: 'lib'
+})
+```
+
+### getBlob
+
+Get specific blob
+
+```js
+client.repository.getBlob({
+  id: client.id,
+  sha: 'master',
+  filepath: 'lib/alidata.js'
+}, function (err, blob) {
+  // ...
+})
+```
+
+### getRawBlob
+
+Get specific *raw* blob
+
+```js
+client.repository.getRawBlob({
+  id: 55045,
+  sha: '946579807281bd26b75b91986c78f15ad0bd40f7'
+}, function (err, raw) {
+  // ...
+})
+```
+
+### createTag
+
+Create tag
+
+```js
+client.repository.createTag({
+  id: 55045,
+  tag_name: 'develop',
+  ref: '946579807281bd26b75b91986c78f15ad0bd40f7',
+  message: 'dev branch',
+  release_description: 'wip'
+}, function (err, raw) {
+  // ...
+})
+```
+
+### commitActions
+
+[Create a commit with multiple files and actions](https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/commits.md#create-a-commit-with-multiple-files-and-actions)
+
+The raw HTTP POST format (v4 API)
+
+```
+PAYLOAD=$(cat << 'JSON'
+{
+  "branch": "master",
+  "commit_message": "some commit message",
+  "actions": [
+    {
+      "action": "create",
+      "file_path": "foo/bar",
+      "content": "some content"
+    },
+  ]
+}
+JSON
+)
+curl --request POST --header "PRIVATE-TOKEN: FTwjsMxf9yTg23sLd9bp" --header "Content-Type: application/json" --data "$PAYLOAD" https://gitlab.com//api/v4/projects/3339054/repository/commits
+```
+
+Notice the HTTP `headers` section:
+
+`--header "PRIVATE-TOKEN: FTwjsMxf9yTg23sLd9bp" --header "Content-Type: application/json"`
+
+With `update`, `move` and `delete` actions:
+
+```
+{
+  "action": "delete",
+  "file_path": "foo/bar2",
+},
+{
+  "action": "move",
+  "file_path": "foo/bar3",
+  "previous_path": "foo/bar4",
+  "content": "some content"
+},
+{
+  "action": "update",
+  "file_path": "foo/bar5",
+  "content": "new content"
+}
+```
+
+See tests in `/test/repository`
+
+```js
+let random = Math.floor((Math.random() * 1000) + 1)
+client.repository.commitActions({
+  id: client.id,
+  // branch_name: 'develop',
+  branch: 'develop',
+  actions: [{
+    action: 'create',
+    file_path: `foolish-${random}`,
+    content: 'some content'
+    // encoding: 'text'
+  }],
+  // author_email: 'test@gmail.com',
+  // author_name: 'tester',
+  commit_message: 'goodies'
+}, function (err, res) {
+  // ...
+})
+```
+
+### getDiff
+
+Get diff (commit vs commit comparison)
+
+```js
+client.repository.getDiff({
+  id: 55045,
+  sha: '946579807281bd26b75b91986c78f15ad0bd40f7'
+}, function (err, raw) {
+  // ...
+})
+```
+
+### archive
+
+Get archive file
+
+```js
+client.repository.archive({
+  id: 55045,
+  sha: '946579807281bd26b75b91986c78f15ad0bd40f7'
+}, function (err, raw) {
+  // ...
+})
+```
+
+### compare
+
+Get diffs
+
+```js
+client.repository.compare({
+  id: 55045,
+  to: 'master',
+  from: '946579807281bd26b75b91986c78f15ad0bd40f7'
+}, function (err, diffs) {
+  // ...
+})
+```
+
 
 ### Repository Branches
 
