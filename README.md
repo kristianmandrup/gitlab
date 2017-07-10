@@ -123,18 +123,24 @@ All API methods must be added to `properties.json` to be added to promise client
 
 ## API docs
 
-Please see the [docs]() folder
+Please see the [docs](https://github.com/kristianmandrup/gitlab/tree/master/docs) folder
 
 ### Group APIs
 
-- [Groups]()
-- [Group members]()
+See [docs/group](https://github.com/kristianmandrup/gitlab/tree/master/docs/group) folder
+
+- [Groups](https://github.com/kristianmandrup/gitlab/tree/master/docs/group/Groups.md)
+- [Group members](https://github.com/kristianmandrup/gitlab/tree/master/docs/group/Group Members.md)
 
 ### User APIs
 
-- [Users]()
+See [docs/user](https://github.com/kristianmandrup/gitlab/tree/master/docs/user) folder
+
+- [Users](https://github.com/kristianmandrup/gitlab/tree/master/docs/user/Users.md)
 
 ### Project APIs
+
+See [docs/project](https://github.com/kristianmandrup/gitlab/tree/master/docs/project) folder
 
 - [Deploy Keys]()
 - [Hooks]()
@@ -142,13 +148,15 @@ Please see the [docs]() folder
 - [Merge Requests]()
 - [Milestones]()
 - [Project Members]()
-- [Project]()
+- [Project](https://github.com/kristianmandrup/gitlab/tree/master/docs/project/Project.md)
 
 ### Repository APIs
 
+See [docs/repository](https://github.com/kristianmandrup/gitlab/tree/master/docs/repository) folder
+
 - [Repository Branches]()
 - [Repository Files]()
-- [Repository]()
+- [Repository](https://github.com/kristianmandrup/gitlab/tree/master/docs/repository/Repository.md)
 
 ### More APIs
 
